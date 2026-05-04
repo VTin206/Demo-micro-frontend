@@ -1,7 +1,5 @@
 # E-commerce Micro Frontend - Webpack 5 Module Federation
 
-Demo nay refactor tu mo hinh `home/about` thanh case study E-commerce Micro Frontend.
-
 Muc tieu cua demo la minh hoa cach mot ung dung thuong mai dien tu co the tach frontend thanh nhieu micro frontend doc lap, duoc ghep lai tai runtime bang Webpack 5 Module Federation.
 
 ## Ten Bai Toan
