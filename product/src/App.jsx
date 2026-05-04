@@ -1,0 +1,7 @@
+import React from "react";
+import ReactDOM from "react-dom";
+import ProductApp from "./ProductApp";
+import "./index.scss";
+
+const root = document.getElementById("app");
+ReactDOM.createRoot(root).render(<ProductApp />);
