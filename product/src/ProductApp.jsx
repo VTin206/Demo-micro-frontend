@@ -1,44 +1,6 @@
 import React, { useState } from "react";
 import "./index.scss";
-
-const products = [
-  {
-    id: "headphones",
-    name: "Wireless Headphones",
-    category: "Audio",
-    price: 1290000,
-    description: "Active noise reduction, soft ear pads, and 30-hour battery life.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80"
-  },
-  {
-    id: "keyboard",
-    name: "Mechanical Keyboard",
-    category: "Workspace",
-    price: 1590000,
-    description: "Compact layout, tactile switches, and hot-swappable keycaps.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=900&q=80"
-  },
-  {
-    id: "watch",
-    name: "Smart Fitness Watch",
-    category: "Wearable",
-    price: 2190000,
-    description: "Daily activity tracking, sleep insights, and quick notifications.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80"
-  },
-  {
-    id: "dock",
-    name: "USB-C Travel Dock",
-    category: "Accessories",
-    price: 990000,
-    description: "HDMI, USB-A, card reader, and pass-through charging in one hub.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1625842268584-8f3296236761?auto=format&fit=crop&w=900&q=80"
-  }
-];
+import { useProducts } from "./features/products/hooks/useProducts";
 
 function formatCurrency(value) {
   return new Intl.NumberFormat("vi-VN", {
@@ -48,6 +10,7 @@ function formatCurrency(value) {
 }
 
 export default function ProductApp() {
+  const { products } = useProducts();
   const [lastAdded, setLastAdded] = useState(null);
 
   const addToCart = (product) => {
@@ -66,6 +29,7 @@ export default function ProductApp() {
         <div>
           <p className="eyebrow">Product MFE</p>
           <h2>Product catalog</h2>
+          <p className="remote-subtitle">Curated electronics for quick demo orders.</p>
         </div>
         <span className="remote-badge">Remote 3001</span>
       </div>
@@ -84,6 +48,10 @@ export default function ProductApp() {
               <span>{product.category}</span>
             </div>
             <div>
+              <div className="product-meta">
+                <span>{product.rating} rating</span>
+                <span>{product.stock}</span>
+              </div>
               <h3>{product.name}</h3>
               <p>{product.description}</p>
             </div>

@@ -56,6 +56,40 @@ Shell App - Host - http://localhost:3000
 
 Shell la diem vao chinh. Nguoi dung truy cap `http://localhost:3000`, Shell se render layout chung, dieu huong route va lazy load remote app tuong ung.
 
+## Architecture Contract
+
+Demo sử dụng kiến trúc Micro Frontend theo mô hình client-side runtime integration.
+
+| Thành phần | Quy ước |
+|---|---|
+| Host | shell |
+| Remote apps | product, cart, profile, checkout |
+| Integration | Webpack 5 Module Federation |
+| Routing | Shell quản lý route chính |
+| Communication | Browser CustomEvent |
+| Shared data demo | localStorage |
+| Backend/API | Chưa triển khai thật, chỉ là conceptual/future extension |
+| Auth | Mô phỏng bằng user:login |
+| Payment | Mô phỏng UI, không xử lý giao dịch thật |
+
+### Main Routes
+
+| Route | Micro Frontend |
+|---|---|
+| /products | Product MFE |
+| /cart | Cart MFE |
+| /profile | Profile/User MFE |
+| /checkout | Checkout MFE |
+
+### Event Contract
+
+| Event | Phát từ | Xử lý bởi | Ý nghĩa |
+|---|---|---|---|
+| cart:add | Product MFE | Shell | Thêm sản phẩm vào giỏ |
+| cart:updated | Shell | Cart MFE/Header | Giỏ hàng đã thay đổi |
+| checkout:start | Cart MFE | Shell | Bắt đầu thanh toán |
+| user:login | Profile/User MFE | Shell | Đăng nhập mô phỏng |
+
 ## Module Federation
 
 Shell khai bao remotes trong `shell/webpack.config.js`:

@@ -1,21 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./index.scss";
-
-const CART_STORAGE_KEY = "mfe:ecommerce:cart";
-
-function readCart() {
-  try {
-    const rawValue = window.localStorage.getItem(CART_STORAGE_KEY);
-    return rawValue ? JSON.parse(rawValue) : [];
-  } catch (error) {
-    console.warn("Cannot read cart", error);
-    return [];
-  }
-}
-
-function writeCart(items) {
-  window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-}
+import {
+  clearCart as clearStoredCart,
+  getCart,
+  saveCart
+} from "./features/cart/services/cartService";
 
 function formatCurrency(value) {
   return new Intl.NumberFormat("vi-VN", {
@@ -35,11 +24,11 @@ function notifyCartUpdated(items) {
 }
 
 export default function CartApp() {
-  const [items, setItems] = useState(readCart);
+  const [items, setItems] = useState(getCart);
 
   useEffect(() => {
     const refreshFromCartEvent = () => {
-      setItems(readCart());
+      setItems(getCart());
     };
 
     window.addEventListener("cart:add", refreshFromCartEvent);
@@ -55,10 +44,16 @@ export default function CartApp() {
     () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [items]
   );
+  const itemCount = useMemo(
+    () => items.reduce((sum, item) => sum + item.quantity, 0),
+    [items]
+  );
+  const shipping = items.length ? 39000 : 0;
+  const grandTotal = total + shipping;
 
   const updateItems = (nextItems) => {
     setItems(nextItems);
-    writeCart(nextItems);
+    saveCart(nextItems);
     notifyCartUpdated(nextItems);
   };
 
@@ -73,7 +68,9 @@ export default function CartApp() {
   };
 
   const clearCart = () => {
-    updateItems([]);
+    setItems([]);
+    clearStoredCart();
+    notifyCartUpdated([]);
   };
 
   const startCheckout = () => {
@@ -90,6 +87,7 @@ export default function CartApp() {
         <div>
           <p className="eyebrow">Cart MFE</p>
           <h2>Shopping cart</h2>
+          <p className="remote-subtitle">Review selected items before checkout.</p>
         </div>
         <span className="remote-badge">Remote 3002</span>
       </div>
@@ -127,8 +125,18 @@ export default function CartApp() {
           </ul>
 
           <div className="cart-total">
-            <span>Total</span>
-            <strong>{formatCurrency(total)}</strong>
+            <div>
+              <span>Subtotal</span>
+              <strong>{formatCurrency(total)}</strong>
+            </div>
+            <div>
+              <span>Shipping</span>
+              <strong>{formatCurrency(shipping)}</strong>
+            </div>
+            <div className="grand-total">
+              <span>{itemCount} items</span>
+              <strong>{formatCurrency(grandTotal)}</strong>
+            </div>
           </div>
 
           <div className="action-row">

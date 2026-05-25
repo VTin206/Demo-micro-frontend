@@ -1,7 +1,13 @@
 const HtmlWebPackPlugin = require('html-webpack-plugin')
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin')
 const Dotenv = require('dotenv-webpack')
+require('dotenv').config()
 const deps = require('./package.json').dependencies
+
+const productRemoteUrl = process.env.PRODUCT_REMOTE_URL || 'http://localhost:3001/remoteEntry.js'
+const cartRemoteUrl = process.env.CART_REMOTE_URL || 'http://localhost:3002/remoteEntry.js'
+const profileRemoteUrl = process.env.PROFILE_REMOTE_URL || 'http://localhost:3003/remoteEntry.js'
+const checkoutRemoteUrl = process.env.CHECKOUT_REMOTE_URL || 'http://localhost:3004/remoteEntry.js'
 
 module.exports = () => ({
   output: {
@@ -48,10 +54,10 @@ module.exports = () => ({
       name: 'shell',
       filename: 'remoteEntry.js',
       remotes: {
-        product: 'product@http://localhost:3001/remoteEntry.js',
-        cart: 'cart@http://localhost:3002/remoteEntry.js',
-        profile: 'profile@http://localhost:3003/remoteEntry.js',
-        checkout: 'checkout@http://localhost:3004/remoteEntry.js'
+        product: `product@${productRemoteUrl}`,
+        cart: `cart@${cartRemoteUrl}`,
+        profile: `profile@${profileRemoteUrl}`,
+        checkout: `checkout@${checkoutRemoteUrl}`
       },
       exposes: {},
       shared: {

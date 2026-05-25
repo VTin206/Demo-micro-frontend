@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./index.scss";
+import { loginMockUser } from "./features/profile/services/profileService";
 
 const demoUser = {
   id: "user-1001",
@@ -14,12 +15,7 @@ export default function ProfileApp() {
   const [loginStatus, setLoginStatus] = useState("Not logged in");
 
   const login = () => {
-    window.dispatchEvent(
-      new CustomEvent("user:login", {
-        detail: demoUser
-      })
-    );
-
+    loginMockUser(demoUser);
     setLoginStatus(`Published user:login for ${demoUser.name}`);
   };
 
@@ -29,6 +25,7 @@ export default function ProfileApp() {
         <div>
           <p className="eyebrow">Profile MFE</p>
           <h2>Customer profile</h2>
+          <p className="remote-subtitle">Customer account details for this demo session.</p>
         </div>
         <span className="remote-badge">Remote 3003</span>
       </div>
@@ -40,6 +37,12 @@ export default function ProfileApp() {
           <p>{demoUser.email}</p>
           <span>{demoUser.tier}</span>
         </div>
+      </div>
+
+      <div className="membership-card">
+        <span>Member Benefits</span>
+        <strong>Free express shipping</strong>
+        <p>Eligible on electronics orders over 1,000,000 VND.</p>
       </div>
 
       <dl className="profile-facts">

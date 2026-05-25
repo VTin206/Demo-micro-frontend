@@ -9,15 +9,13 @@ import {
   useNavigate
 } from "react-router-dom";
 import "./index.scss";
+import { EVENTS } from "./shared/constants/events";
+import { STORAGE_KEYS } from "./shared/constants/storageKeys";
 
 const ProductApp = React.lazy(() => import("product/ProductApp"));
 const CartApp = React.lazy(() => import("cart/CartApp"));
 const ProfileApp = React.lazy(() => import("profile/ProfileApp"));
 const CheckoutApp = React.lazy(() => import("checkout/CheckoutApp"));
-
-const CART_STORAGE_KEY = "mfe:ecommerce:cart";
-const CHECKOUT_STORAGE_KEY = "mfe:ecommerce:checkout-order";
-const USER_STORAGE_KEY = "mfe:ecommerce:user";
 
 function readJson(key, fallback) {
   try {
@@ -34,7 +32,7 @@ function writeJson(key, value) {
 }
 
 function getCartItems() {
-  return readJson(CART_STORAGE_KEY, []);
+  return readJson(STORAGE_KEYS.CART, []);
 }
 
 function addProductToCart(product) {
@@ -47,12 +45,19 @@ function addProductToCart(product) {
       )
     : [...items, { ...product, quantity: 1 }];
 
-  writeJson(CART_STORAGE_KEY, nextItems);
+  writeJson(STORAGE_KEYS.CART, nextItems);
   return nextItems;
 }
 
 function getCartTotal(items) {
   return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+}
+
+function formatCurrency(value) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND"
+  }).format(value);
 }
 
 function ShellEventBridge({ onCartChange, onUserChange }) {
@@ -70,7 +75,7 @@ function ShellEventBridge({ onCartChange, onUserChange }) {
       onCartChange(nextItems);
 
       window.dispatchEvent(
-        new CustomEvent("cart:updated", {
+        new CustomEvent(EVENTS.CART_UPDATED, {
           detail: { items: nextItems, total: getCartTotal(nextItems) }
         })
       );
@@ -84,7 +89,7 @@ function ShellEventBridge({ onCartChange, onUserChange }) {
         startedAt: new Date().toISOString()
       };
 
-      writeJson(CHECKOUT_STORAGE_KEY, order);
+      writeJson(STORAGE_KEYS.CHECKOUT_ORDER, order);
       navigate("/checkout");
     };
 
@@ -95,18 +100,18 @@ function ShellEventBridge({ onCartChange, onUserChange }) {
         return;
       }
 
-      writeJson(USER_STORAGE_KEY, user);
+      writeJson(STORAGE_KEYS.USER, user);
       onUserChange(user);
     };
 
-    window.addEventListener("cart:add", handleCartAdd);
-    window.addEventListener("checkout:start", handleCheckoutStart);
-    window.addEventListener("user:login", handleUserLogin);
+    window.addEventListener(EVENTS.CART_ADD, handleCartAdd);
+    window.addEventListener(EVENTS.CHECKOUT_START, handleCheckoutStart);
+    window.addEventListener(EVENTS.USER_LOGIN, handleUserLogin);
 
     return () => {
-      window.removeEventListener("cart:add", handleCartAdd);
-      window.removeEventListener("checkout:start", handleCheckoutStart);
-      window.removeEventListener("user:login", handleUserLogin);
+      window.removeEventListener(EVENTS.CART_ADD, handleCartAdd);
+      window.removeEventListener(EVENTS.CHECKOUT_START, handleCheckoutStart);
+      window.removeEventListener(EVENTS.USER_LOGIN, handleUserLogin);
     };
   }, [navigate, onCartChange, onUserChange]);
 
@@ -169,14 +174,45 @@ function NavItem({ to, children }) {
   );
 }
 
+function CommerceOverview({ cartCount, cartTotal, user }) {
+  return (
+    <section className="commerce-overview">
+      <div className="overview-copy">
+        <p className="eyebrow">E-commerce Workspace</p>
+        <h2>Storefront dashboard</h2>
+        <p>
+          Monitor the current customer session, cart value, and checkout readiness in one
+          place.
+        </p>
+      </div>
+
+      <div className="metric-grid">
+        <div className="metric-card">
+          <span>Cart Value</span>
+          <strong>{formatCurrency(cartTotal)}</strong>
+        </div>
+        <div className="metric-card">
+          <span>Cart Units</span>
+          <strong>{cartCount}</strong>
+        </div>
+        <div className="metric-card highlight">
+          <span>Customer</span>
+          <strong>{user ? "Signed in" : "Guest"}</strong>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function App() {
   const [cartItems, setCartItems] = useState(getCartItems);
-  const [user, setUser] = useState(() => readJson(USER_STORAGE_KEY, null));
+  const [user, setUser] = useState(() => readJson(STORAGE_KEYS.USER, null));
 
   const cartCount = useMemo(
     () => cartItems.reduce((sum, item) => sum + item.quantity, 0),
     [cartItems]
   );
+  const cartTotal = useMemo(() => getCartTotal(cartItems), [cartItems]);
 
   return (
     <BrowserRouter>
@@ -210,6 +246,8 @@ function App() {
         </nav>
 
         <main className="shell-main">
+          <CommerceOverview cartCount={cartCount} cartTotal={cartTotal} user={user} />
+
           <Routes>
             <Route path="/" element={<Navigate to="/products" replace />} />
             <Route

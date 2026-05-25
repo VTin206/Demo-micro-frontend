@@ -1,18 +1,6 @@
 import React, { useMemo, useState } from "react";
 import "./index.scss";
-
-const CART_STORAGE_KEY = "mfe:ecommerce:cart";
-const CHECKOUT_STORAGE_KEY = "mfe:ecommerce:checkout-order";
-
-function readJson(key, fallback) {
-  try {
-    const rawValue = window.localStorage.getItem(key);
-    return rawValue ? JSON.parse(rawValue) : fallback;
-  } catch (error) {
-    console.warn(`Cannot read ${key}`, error);
-    return fallback;
-  }
-}
+import { getCheckoutOrder } from "./features/checkout/services/checkoutService";
 
 function formatCurrency(value) {
   return new Intl.NumberFormat("vi-VN", {
@@ -21,22 +9,8 @@ function formatCurrency(value) {
   }).format(value);
 }
 
-function getInitialOrder() {
-  const checkoutOrder = readJson(CHECKOUT_STORAGE_KEY, null);
-
-  if (checkoutOrder?.items?.length) {
-    return checkoutOrder;
-  }
-
-  const cartItems = readJson(CART_STORAGE_KEY, []);
-  return {
-    items: cartItems,
-    total: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  };
-}
-
 export default function CheckoutApp() {
-  const [order] = useState(getInitialOrder);
+  const [order] = useState(getCheckoutOrder);
   const [form, setForm] = useState({
     fullName: "Nguyen An",
     address: "123 Nguyen Hue, Ho Chi Minh City",
@@ -64,6 +38,7 @@ export default function CheckoutApp() {
         <div>
           <p className="eyebrow">Checkout MFE</p>
           <h2>Checkout</h2>
+          <p className="remote-subtitle">Confirm customer details and payment method.</p>
         </div>
         <span className="remote-badge">Remote 3004</span>
       </div>
@@ -76,6 +51,11 @@ export default function CheckoutApp() {
       ) : (
         <div className="checkout-grid">
           <div>
+            <div className="checkout-steps" aria-label="Checkout progress">
+              <span className="active">Cart</span>
+              <span className="active">Details</span>
+              <span>Payment</span>
+            </div>
             <h3>Order summary</h3>
             <ul className="cart-list">
               {order.items.map((item) => (
