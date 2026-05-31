@@ -52,6 +52,12 @@ button:hover {
   margin: 4px 0 0;
 }
 
+.remote-subtitle {
+  color: #63717d;
+  line-height: 1.45;
+  margin: 8px 0 0;
+}
+
 .eyebrow {
   color: #c4552d;
   font-size: 12px;
@@ -144,19 +150,71 @@ button:hover {
   margin-top: 4px;
 }
 
+.cart-actions {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.quantity-control {
+  align-items: center;
+  background: #f4f7f8;
+  border: 1px solid #d9e0e7;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 40px 40px 40px;
+  overflow: hidden;
+}
+
+.quantity-control span {
+  color: #172026;
+  font-weight: 800;
+  margin: 0;
+  text-align: center;
+}
+
+.quantity-button {
+  border-radius: 0;
+  min-height: 40px;
+  padding: 0;
+}
+
 .cart-total {
   align-items: center;
   background: #142126;
   border-radius: 8px;
   color: #ffffff;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: 18px;
-  padding: 18px;
+  overflow: hidden;
+}
+
+.cart-total div {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 16px;
+}
+
+.cart-total span,
+.cart-total strong {
+  display: block;
+}
+
+.cart-total span {
+  color: #cbd5df;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  text-transform: uppercase;
 }
 
 .cart-total strong {
   font-size: 22px;
+}
+
+.cart-total .grand-total {
+  background: #0f766e;
 }
 
 .action-row {
@@ -172,7 +230,21 @@ button:hover {
     flex-direction: column;
   }
 
+  .cart-actions {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .quantity-control {
+    width: 122px;
+  }
+
   .action-row {
     flex-direction: column;
+  }
+
+  .cart-total {
+    grid-template-columns: 1fr;
   }
 }

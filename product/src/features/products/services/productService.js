@@ -1,3 +1,5 @@
+import { EVENTS } from "../constants/events";
+
 const mockProducts = [
   {
     id: "headphones",
@@ -47,4 +49,18 @@ const mockProducts = [
 
 export async function getProducts() {
   return mockProducts;
+}
+
+export function getProductCategories(products = mockProducts) {
+  return Array.from(new Set(products.map((product) => product.category)));
+}
+
+export function addProductToCart(product) {
+  window.dispatchEvent(
+    new CustomEvent(EVENTS.CART_ADD, {
+      detail: product
+    })
+  );
+
+  return product;
 }

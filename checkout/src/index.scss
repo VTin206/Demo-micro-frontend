@@ -32,6 +32,12 @@ button:hover {
   transform: translateY(-1px);
 }
 
+button:disabled {
+  background: #9aa7b2;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .remote-card {
   color: #172026;
 }
@@ -48,6 +54,12 @@ button:hover {
   font-size: 28px;
   line-height: 1.2;
   margin: 4px 0 0;
+}
+
+.remote-subtitle {
+  color: #63717d;
+  line-height: 1.45;
+  margin: 8px 0 0;
 }
 
 .eyebrow {
@@ -104,6 +116,33 @@ button:hover {
 
 .checkout-grid h3 {
   margin: 0 0 12px;
+}
+
+.checkout-steps {
+  background: #ffffff;
+  border: 1px solid #d9e0e7;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(20, 33, 38, 0.06);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 18px;
+  padding: 10px;
+}
+
+.checkout-steps span {
+  background: #eef3f5;
+  border-radius: 8px;
+  color: #63717d;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 10px;
+  text-align: center;
+}
+
+.checkout-steps span.active {
+  background: #e5f4f2;
+  color: #0b5f5a;
 }
 
 .cart-list {

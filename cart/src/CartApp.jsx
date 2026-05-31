@@ -1,10 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 import "./index.scss";
-import {
-  clearCart as clearStoredCart,
-  getCart,
-  saveCart
-} from "./features/cart/services/cartService";
+import { useCart } from "./features/cart/hooks/useCart";
 
 function formatCurrency(value) {
   return new Intl.NumberFormat("vi-VN", {
@@ -13,73 +9,19 @@ function formatCurrency(value) {
   }).format(value);
 }
 
-function notifyCartUpdated(items) {
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  window.dispatchEvent(
-    new CustomEvent("cart:updated", {
-      detail: { items, total }
-    })
-  );
-}
-
 export default function CartApp() {
-  const [items, setItems] = useState(getCart);
-
-  useEffect(() => {
-    const refreshFromCartEvent = () => {
-      setItems(getCart());
-    };
-
-    window.addEventListener("cart:add", refreshFromCartEvent);
-    window.addEventListener("cart:updated", refreshFromCartEvent);
-
-    return () => {
-      window.removeEventListener("cart:add", refreshFromCartEvent);
-      window.removeEventListener("cart:updated", refreshFromCartEvent);
-    };
-  }, []);
-
-  const total = useMemo(
-    () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [items]
-  );
-  const itemCount = useMemo(
-    () => items.reduce((sum, item) => sum + item.quantity, 0),
-    [items]
-  );
-  const shipping = items.length ? 39000 : 0;
-  const grandTotal = total + shipping;
-
-  const updateItems = (nextItems) => {
-    setItems(nextItems);
-    saveCart(nextItems);
-    notifyCartUpdated(nextItems);
-  };
-
-  const decreaseQuantity = (productId) => {
-    updateItems(
-      items
-        .map((item) =>
-          item.id === productId ? { ...item, quantity: item.quantity - 1 } : item
-        )
-        .filter((item) => item.quantity > 0)
-    );
-  };
-
-  const clearCart = () => {
-    setItems([]);
-    clearStoredCart();
-    notifyCartUpdated([]);
-  };
-
-  const startCheckout = () => {
-    window.dispatchEvent(
-      new CustomEvent("checkout:start", {
-        detail: { items, total }
-      })
-    );
-  };
+  const {
+    items,
+    total,
+    itemCount,
+    shipping,
+    grandTotal,
+    increaseItem,
+    decreaseItem,
+    removeItem,
+    clear,
+    checkout
+  } = useCart();
 
   return (
     <section className="remote-card cart-app">
@@ -93,7 +35,7 @@ export default function CartApp() {
       </div>
 
       <div className="event-note">
-        Listening for <strong>cart:add</strong> and <strong>cart:updated</strong>
+        Synced by <strong>cart:updated</strong> and publishing <strong>checkout:start</strong>
       </div>
 
       {items.length === 0 ? (
@@ -117,9 +59,32 @@ export default function CartApp() {
                     </span>
                   </div>
                 </div>
-                <button type="button" onClick={() => decreaseQuantity(item.id)}>
-                  Remove
-                </button>
+                <div className="cart-actions">
+                  <div className="quantity-control" aria-label={`${item.name} quantity`}>
+                    <button
+                      type="button"
+                      className="quantity-button"
+                      onClick={() => decreaseItem(item.id)}
+                    >
+                      -
+                    </button>
+                    <span>{item.quantity}</span>
+                    <button
+                      type="button"
+                      className="quantity-button"
+                      onClick={() => increaseItem(item.id)}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={() => removeItem(item.id)}
+                  >
+                    Remove
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -140,10 +105,10 @@ export default function CartApp() {
           </div>
 
           <div className="action-row">
-            <button type="button" className="secondary-button" onClick={clearCart}>
+            <button type="button" className="secondary-button" onClick={clear}>
               Clear
             </button>
-            <button type="button" onClick={startCheckout}>
+            <button type="button" onClick={checkout}>
               Checkout
             </button>
           </div>

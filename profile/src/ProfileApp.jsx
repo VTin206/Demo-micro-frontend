@@ -1,23 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import "./index.scss";
-import { loginMockUser } from "./features/profile/services/profileService";
-
-const demoUser = {
-  id: "user-1001",
-  name: "Nguyen An",
-  email: "nguyen.an@example.com",
-  tier: "Gold Member",
-  location: "Ho Chi Minh City",
-  orders: 12
-};
+import { useProfile } from "./features/profile/hooks/useProfile";
 
 export default function ProfileApp() {
-  const [loginStatus, setLoginStatus] = useState("Not logged in");
-
-  const login = () => {
-    loginMockUser(demoUser);
-    setLoginStatus(`Published user:login for ${demoUser.name}`);
-  };
+  const { user, isAuthenticated, loginStatus, login, logout } = useProfile();
 
   return (
     <section className="remote-card profile-app">
@@ -33,9 +19,9 @@ export default function ProfileApp() {
       <div className="profile-panel">
         <div className="avatar">NA</div>
         <div>
-          <h3>{demoUser.name}</h3>
-          <p>{demoUser.email}</p>
-          <span>{demoUser.tier}</span>
+          <h3>{user.name}</h3>
+          <p>{user.email}</p>
+          <span>{user.tier}</span>
         </div>
       </div>
 
@@ -48,19 +34,27 @@ export default function ProfileApp() {
       <dl className="profile-facts">
         <div>
           <dt>Location</dt>
-          <dd>{demoUser.location}</dd>
+          <dd>{user.location}</dd>
         </div>
         <div>
           <dt>Completed orders</dt>
-          <dd>{demoUser.orders}</dd>
+          <dd>{user.orders}</dd>
         </div>
       </dl>
 
       <div className="event-note">{loginStatus}</div>
 
-      <button type="button" onClick={login}>
-        Simulate Login
-      </button>
+      <div className="profile-actions">
+        {isAuthenticated ? (
+          <button type="button" className="secondary-button" onClick={logout}>
+            Logout
+          </button>
+        ) : (
+          <button type="button" onClick={login}>
+            Simulate Login
+          </button>
+        )}
+      </div>
     </section>
   );
 }

@@ -8,6 +8,12 @@ body {
   background: #f4f7f8;
 }
 
+button,
+input,
+select {
+  font: inherit;
+}
+
 button {
   min-height: 40px;
   border: 0;
@@ -43,6 +49,12 @@ button:hover {
   margin: 4px 0 0;
 }
 
+.remote-subtitle {
+  color: #63717d;
+  line-height: 1.45;
+  margin: 8px 0 0;
+}
+
 .eyebrow {
   color: #c4552d;
   font-size: 12px;
@@ -70,6 +82,32 @@ button:hover {
   color: #5d4a17;
   margin-bottom: 18px;
   padding: 12px 14px;
+}
+
+.catalog-controls {
+  background: #ffffff;
+  border: 1px solid #d9e0e7;
+  border-radius: 8px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+  margin-bottom: 18px;
+  padding: 16px;
+}
+
+.catalog-controls label {
+  color: #34404a;
+  display: grid;
+  font-weight: 800;
+  gap: 7px;
+}
+
+.catalog-controls input,
+.catalog-controls select {
+  border: 1px solid #c8d2dc;
+  border-radius: 8px;
+  min-height: 40px;
+  padding: 10px 12px;
 }
 
 .product-grid {
@@ -136,6 +174,23 @@ button:hover {
   margin: 6px 0;
 }
 
+.product-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.product-meta span {
+  background: #f0f4f6;
+  border: 1px solid #dde7eb;
+  border-radius: 999px;
+  color: #34404a;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 9px;
+}
+
 .product-card p {
   color: #5f6c78;
   line-height: 1.45;
@@ -153,4 +208,10 @@ button:hover {
 .product-footer strong {
   color: #142126;
   font-size: 18px;
+}
+
+@media (max-width: 680px) {
+  .catalog-controls {
+    grid-template-columns: 1fr;
+  }
 }

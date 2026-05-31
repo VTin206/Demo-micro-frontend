@@ -25,6 +25,15 @@ button:hover {
   transform: translateY(-1px);
 }
 
+.secondary-button {
+  background: #edf1f5;
+  color: #34404a;
+}
+
+.secondary-button:hover {
+  background: #dce4eb;
+}
+
 .remote-card {
   color: #172026;
 }
@@ -41,6 +50,12 @@ button:hover {
   font-size: 28px;
   line-height: 1.2;
   margin: 4px 0 0;
+}
+
+.remote-subtitle {
+  color: #63717d;
+  line-height: 1.45;
+  margin: 8px 0 0;
 }
 
 .eyebrow {
@@ -110,6 +125,39 @@ button:hover {
   font-weight: 800;
 }
 
+.membership-card {
+  background: #142126;
+  border-radius: 8px;
+  box-shadow: 0 14px 32px rgba(20, 33, 38, 0.12);
+  color: #ffffff;
+  margin-top: 16px;
+  padding: 18px;
+}
+
+.membership-card span,
+.membership-card strong {
+  display: block;
+}
+
+.membership-card span {
+  color: #f1b24a;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.membership-card strong {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.membership-card p {
+  color: #cbd5df;
+  line-height: 1.45;
+  margin: 0;
+}
+
 .profile-facts {
   display: grid;
   gap: 12px;
@@ -133,4 +181,9 @@ button:hover {
   font-size: 20px;
   font-weight: 800;
   margin: 6px 0 0;
+}
+
+.profile-actions {
+  display: flex;
+  justify-content: flex-end;
 }

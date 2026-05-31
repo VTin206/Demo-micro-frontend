@@ -1,5 +1,5 @@
-const CART_KEY = "mfe:ecommerce:cart";
-const CHECKOUT_ORDER_KEY = "mfe:ecommerce:checkout-order";
+import { EVENTS } from "../constants/events";
+import { STORAGE_KEYS } from "../constants/storageKeys";
 
 function readJson(key, fallback) {
   try {
@@ -15,23 +15,40 @@ function getCartTotal(items) {
 }
 
 export function getCheckoutOrder() {
-  const checkoutOrder = readJson(CHECKOUT_ORDER_KEY, null);
+  const checkoutOrder = readJson(STORAGE_KEYS.CHECKOUT_ORDER, null);
 
   if (checkoutOrder?.items?.length) {
     return checkoutOrder;
   }
 
-  const cartItems = readJson(CART_KEY, []);
+  const cartItems = readJson(STORAGE_KEYS.CART_ITEMS, []);
   return {
     items: cartItems,
     total: getCartTotal(cartItems)
   };
 }
 
-export function createMockOrder(orderData) {
-  return {
+export function confirmMockPayment(orderData) {
+  const nextOrder = {
     id: `ORDER-${Date.now()}`,
     status: "success",
+    paidAt: new Date().toISOString(),
     ...orderData
   };
+
+  const existingOrders = readJson(STORAGE_KEYS.CHECKOUT_ORDERS, []);
+  localStorage.setItem(
+    STORAGE_KEYS.CHECKOUT_ORDERS,
+    JSON.stringify([nextOrder, ...existingOrders])
+  );
+  localStorage.removeItem(STORAGE_KEYS.CART_ITEMS);
+  localStorage.removeItem(STORAGE_KEYS.CHECKOUT_ORDER);
+
+  window.dispatchEvent(
+    new CustomEvent(EVENTS.CART_UPDATED, {
+      detail: { items: [], total: 0 }
+    })
+  );
+
+  return nextOrder;
 }

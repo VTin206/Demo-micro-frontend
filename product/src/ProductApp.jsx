@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import "./index.scss";
 import { useProducts } from "./features/products/hooks/useProducts";
 
@@ -10,18 +10,18 @@ function formatCurrency(value) {
 }
 
 export default function ProductApp() {
-  const { products } = useProducts();
-  const [lastAdded, setLastAdded] = useState(null);
-
-  const addToCart = (product) => {
-    window.dispatchEvent(
-      new CustomEvent("cart:add", {
-        detail: product
-      })
-    );
-
-    setLastAdded(product.name);
-  };
+  const {
+    products,
+    categories,
+    query,
+    category,
+    loading,
+    error,
+    lastAdded,
+    addToCart,
+    updateQuery,
+    updateCategory
+  } = useProducts();
 
   return (
     <section className="remote-card product-app">
@@ -38,6 +38,36 @@ export default function ProductApp() {
         <div className="event-note">
           Published <strong>cart:add</strong> for {lastAdded}
         </div>
+      )}
+
+      {loading && <div className="event-note">Loading products...</div>}
+      {error && <div className="event-note">Cannot load products.</div>}
+
+      <div className="catalog-controls">
+        <label>
+          Search
+          <input
+            type="search"
+            value={query}
+            onChange={updateQuery}
+            placeholder="Search products"
+          />
+        </label>
+        <label>
+          Category
+          <select value={category} onChange={updateCategory}>
+            <option value="all">All categories</option>
+            {categories.map((nextCategory) => (
+              <option key={nextCategory} value={nextCategory}>
+                {nextCategory}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      {!loading && products.length === 0 && (
+        <div className="event-note">No products match the current filters.</div>
       )}
 
       <div className="product-grid">

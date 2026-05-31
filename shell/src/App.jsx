@@ -1,121 +1,29 @@
-import React, { Component, Suspense, useEffect, useMemo, useState } from "react";
+import React, { Component, Suspense, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 import {
   BrowserRouter,
-  Navigate,
   NavLink,
   Route,
-  Routes,
-  useNavigate
+  Routes
 } from "react-router-dom";
 import "./index.scss";
-import { EVENTS } from "./shared/constants/events";
-import { STORAGE_KEYS } from "./shared/constants/storageKeys";
+import { ShellEventBridge } from "./bridges/ShellEventBridge";
+import {
+  getCartItems,
+  getCartTotal,
+  getCurrentUser
+} from "./services/sessionStorageService";
 
 const ProductApp = React.lazy(() => import("product/ProductApp"));
 const CartApp = React.lazy(() => import("cart/CartApp"));
 const ProfileApp = React.lazy(() => import("profile/ProfileApp"));
 const CheckoutApp = React.lazy(() => import("checkout/CheckoutApp"));
 
-function readJson(key, fallback) {
-  try {
-    const rawValue = window.localStorage.getItem(key);
-    return rawValue ? JSON.parse(rawValue) : fallback;
-  } catch (error) {
-    console.warn(`Cannot read ${key}`, error);
-    return fallback;
-  }
-}
-
-function writeJson(key, value) {
-  window.localStorage.setItem(key, JSON.stringify(value));
-}
-
-function getCartItems() {
-  return readJson(STORAGE_KEYS.CART, []);
-}
-
-function addProductToCart(product) {
-  const items = getCartItems();
-  const existingItem = items.find((item) => item.id === product.id);
-
-  const nextItems = existingItem
-    ? items.map((item) =>
-        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    : [...items, { ...product, quantity: 1 }];
-
-  writeJson(STORAGE_KEYS.CART, nextItems);
-  return nextItems;
-}
-
-function getCartTotal(items) {
-  return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-}
-
 function formatCurrency(value) {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND"
   }).format(value);
-}
-
-function ShellEventBridge({ onCartChange, onUserChange }) {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleCartAdd = (event) => {
-      const product = event.detail;
-
-      if (!product || !product.id) {
-        return;
-      }
-
-      const nextItems = addProductToCart(product);
-      onCartChange(nextItems);
-
-      window.dispatchEvent(
-        new CustomEvent(EVENTS.CART_UPDATED, {
-          detail: { items: nextItems, total: getCartTotal(nextItems) }
-        })
-      );
-    };
-
-    const handleCheckoutStart = (event) => {
-      const items = event.detail?.items?.length ? event.detail.items : getCartItems();
-      const order = {
-        items,
-        total: getCartTotal(items),
-        startedAt: new Date().toISOString()
-      };
-
-      writeJson(STORAGE_KEYS.CHECKOUT_ORDER, order);
-      navigate("/checkout");
-    };
-
-    const handleUserLogin = (event) => {
-      const user = event.detail;
-
-      if (!user || !user.name) {
-        return;
-      }
-
-      writeJson(STORAGE_KEYS.USER, user);
-      onUserChange(user);
-    };
-
-    window.addEventListener(EVENTS.CART_ADD, handleCartAdd);
-    window.addEventListener(EVENTS.CHECKOUT_START, handleCheckoutStart);
-    window.addEventListener(EVENTS.USER_LOGIN, handleUserLogin);
-
-    return () => {
-      window.removeEventListener(EVENTS.CART_ADD, handleCartAdd);
-      window.removeEventListener(EVENTS.CHECKOUT_START, handleCheckoutStart);
-      window.removeEventListener(EVENTS.USER_LOGIN, handleUserLogin);
-    };
-  }, [navigate, onCartChange, onUserChange]);
-
-  return null;
 }
 
 class RemoteErrorBoundary extends Component {
@@ -204,9 +112,42 @@ function CommerceOverview({ cartCount, cartTotal, user }) {
   );
 }
 
+function HomeView() {
+  return (
+    <section className="home-panel">
+      <div>
+        <p className="eyebrow">Runtime Integration</p>
+        <h2>Shell coordinates the commerce session</h2>
+        <p>
+          Product, Cart, Profile, and Checkout remain independent remotes while Shell
+          owns routing, layout, and shared browser events.
+        </p>
+      </div>
+      <div className="flow-grid">
+        <div>
+          <span>1</span>
+          <strong>Product publishes cart:add</strong>
+        </div>
+        <div>
+          <span>2</span>
+          <strong>Shell updates cart:items</strong>
+        </div>
+        <div>
+          <span>3</span>
+          <strong>Cart starts checkout</strong>
+        </div>
+        <div>
+          <span>4</span>
+          <strong>Checkout confirms payment</strong>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function App() {
   const [cartItems, setCartItems] = useState(getCartItems);
-  const [user, setUser] = useState(() => readJson(STORAGE_KEYS.USER, null));
+  const [user, setUser] = useState(getCurrentUser);
 
   const cartCount = useMemo(
     () => cartItems.reduce((sum, item) => sum + item.quantity, 0),
@@ -239,6 +180,7 @@ function App() {
         </header>
 
         <nav className="shell-nav" aria-label="Primary">
+          <NavItem to="/">Home</NavItem>
           <NavItem to="/products">Products</NavItem>
           <NavItem to="/cart">Cart</NavItem>
           <NavItem to="/profile">Profile</NavItem>
@@ -249,7 +191,7 @@ function App() {
           <CommerceOverview cartCount={cartCount} cartTotal={cartTotal} user={user} />
 
           <Routes>
-            <Route path="/" element={<Navigate to="/products" replace />} />
+            <Route path="/" element={<HomeView />} />
             <Route
               path="/products"
               element={
@@ -284,6 +226,10 @@ function App() {
             />
           </Routes>
         </main>
+        <footer className="shell-footer">
+          <span>Shell App - Host</span>
+          <span>Events: cart:add, cart:updated, checkout:start, user:login, user:logout</span>
+        </footer>
       </div>
     </BrowserRouter>
   );

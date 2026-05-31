@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 import "./index.scss";
-import { getCheckoutOrder } from "./features/checkout/services/checkoutService";
+import { useCheckout } from "./features/checkout/hooks/useCheckout";
 
 function formatCurrency(value) {
   return new Intl.NumberFormat("vi-VN", {
@@ -10,27 +10,15 @@ function formatCurrency(value) {
 }
 
 export default function CheckoutApp() {
-  const [order] = useState(getCheckoutOrder);
-  const [form, setForm] = useState({
-    fullName: "Nguyen An",
-    address: "123 Nguyen Hue, Ho Chi Minh City",
-    method: "Cash on delivery"
-  });
-  const [status, setStatus] = useState("Payment is not submitted");
-
-  const totalQuantity = useMemo(
-    () => order.items.reduce((sum, item) => sum + item.quantity, 0),
-    [order.items]
-  );
-
-  const submitPayment = (event) => {
-    event.preventDefault();
-    setStatus("Mock payment submitted successfully");
-  };
-
-  const updateField = (event) => {
-    setForm({ ...form, [event.target.name]: event.target.value });
-  };
+  const {
+    order,
+    form,
+    status,
+    totalQuantity,
+    paymentSubmitted,
+    updateField,
+    submitPayment
+  } = useCheckout();
 
   return (
     <section className="remote-card checkout-app">
@@ -98,7 +86,9 @@ export default function CheckoutApp() {
                 <option>Demo credit card</option>
               </select>
             </label>
-            <button type="submit">Submit Mock Payment</button>
+            <button type="submit" disabled={paymentSubmitted}>
+              Confirm Payment
+            </button>
             <div className="event-note">{status}</div>
           </form>
         </div>
